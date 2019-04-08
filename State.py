@@ -32,38 +32,7 @@ def plotDensity(x, y):
 #    plt.show()
 
 
-def derivative(value_list):
-    return numpy.array([
-        (
-                value_list[(n+1) % len(value_list)]-
-                value_list[(n-1) % len(value_list)]
-        ) / 2
-        for n in range(len(value_list))]
-    )
-    # return numpy.array([
-    #     (
-    #         (
-    #             value_list[(n + 2) % len(value_list)]+
-    #             value_list[(n+1) % len(value_list)])
-    #         ) - (
-    #             value_list[(n-1) % len(value_list)]+
-    #             value_list[(n -2) % len(value_list)]
-    #     ) / 2
-    #     for n in range(len(value_list))]
-    #)
 
-def neighborAverages(values):
-    averages = [values[-1] +
-                values[0] +
-                values[1]]
-    for index in range(1, len(values) - 1):
-        averages.append(values[index - 1]
-                        + values[index]
-                        + values[index + 1])
-    averages.append(values[0] +
-                    values[-1] +
-                    values[-2])
-    return averages
 
 def unitNoiseAt(x, y, noise_seed):
     return scaled_octave_noise_3d(1, 0.5, 1, -1, 1, x, y, noise_seed)
