@@ -1,19 +1,19 @@
 import random
-import numpy
+import numpy as np
 from simplexnoise import *
 import math
 import cmath
 from cmath import polar
 
 def derivative(value_list):
-    return numpy.array([
+    return np.array([
         (
                 value_list[(n+1) % len(value_list)]-
                 value_list[(n-1) % len(value_list)]
         ) / 2
         for n in range(len(value_list))]
     )
-    # return numpy.array([
+    # return np.array([
     #     (
     #         (
     #             value_list[(n + 2) % len(value_list)]+
@@ -46,8 +46,8 @@ def unitNoiseAt(x, y, noise_seed):
 
 
 def randomState(state_width, seed):
-    random_magnitudes = [scaled_octave_noise_2d(3, 0.5, 6, 0, 1, seed, y) for y in numpy.arange(0, 1, 1.0 / state_width)]
-    random_phases = [scaled_octave_noise_2d(3, 0.5, 6, 0, 2 * math.pi, seed, y) for y in numpy.arange(0, 1, 1.0 / state_width)]
+    random_magnitudes = [scaled_octave_noise_2d(3, 0.5, 6, 0, 1, seed, y) for y in np.arange(0, 1, 1.0 / state_width)]
+    random_phases = [scaled_octave_noise_2d(3, 0.5, 6, 0, 2 * math.pi, seed, y) for y in np.arange(0, 1, 1.0 / state_width)]
     return [cmath.rect(random_magnitudes[cell_index], random_phases[cell_index]) for cell_index in range(state_width)]
 
 
@@ -57,27 +57,27 @@ class ContinuousAutomaton:
         self.upsample_ratio = 1
         self.state_seed = random.randrange(0, 10000) if state_seed is None else state_seed
         self.transition_seed = random.randrange(0, 10000) if transition_seed is None else transition_seed
-        self.state = numpy.array(randomState(self.state_width, self.state_seed))
-        self.states = numpy.array([self.state])
+        self.state = np.array(randomState(self.state_width, self.state_seed))
+        self.states = np.array([self.state])
 
     def step(self):
         # state_derivatives = derivative(state)
-        #momentum = numpy.array([0.0 for cell in self.state])
+        #momentum = np.array([0.0 for cell in self.state])
         # prev_state = state
         state_derivatives = derivative(self.state)
         #state_derivatives = neighborAverages(state_derivatives)
         # neighbor_averages = neighborAverages(state)
-        updated = numpy.array(
+        updated = np.array(
             [self.getTransition(state_derivatives[i], self.transition_seed) for i in range(len(state_derivatives))])
         #momentum = momentum + state_derivatives
-        updated = numpy.array(neighborAverages(updated, input_residual_proportion=0.5))
+        updated = np.array(neighborAverages(updated, input_residual_proportion=0.5))
         state = (1 - 0.1) * self.state + updated * 0.2
         #state = (1 - 0.05) * self.state
         #state = updated
         #state = neighborAverages(state)
         #polar_state = [cmath.polar(item) for item in state]
         #state = [cmath.rect(item[0] + 0.05, item[1] + 0) for item in polar_state]
-        state = numpy.array([item if abs(item) < 1 else item / abs(item) for item in state])
+        state = np.array([item if abs(item) < 1 else item / abs(item) for item in state])
         self.state = state
         return state, state_derivatives, updated
 
