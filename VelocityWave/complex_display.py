@@ -76,12 +76,12 @@ class Display:
 if __name__ == "__main__":
     display = Display()
 
-    steps_per_frame = 10
-    for iteration in range(2000 * steps_per_frame):
-        if iteration % 10 == 0:
+    steps_per_frame = 100
+    for iteration in range(500 * steps_per_frame):
+        if iteration % 100 == 0:
             print(iteration)
 
-        display.automaton.step(timestep=0.001)
+        display.automaton.step(timestep=0.0001)
         if iteration % steps_per_frame == 0:
             display.state_history.append(np.copy(display.automaton.state))
             display.velocity_history.append(np.copy(display.automaton.velocity))

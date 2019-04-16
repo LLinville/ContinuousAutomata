@@ -36,32 +36,45 @@ class Display:
         plt.imshow(state_colors, interpolation="None")
         plt.savefig("phase_velocities.png", format='png')
 
+    def plot_amplitudes(self):
+        amplitude_state_history = np.array(self.amplitude_state_history)
+        state_colors = np.stack((
+            amplitude_state_history,
+            np.ones_like(amplitude_state_history),
+            np.ones_like(amplitude_state_history)),
+            axis=-1
+        )
+        state_colors = colors.hsv_to_rgb(state_colors)
+        plt.imshow(state_colors, interpolation="None")
+        plt.savefig("amplitudes.png", format='png')
+        
+    def plot_amplitude_velocities(self):
+        # amplitude_velocity_history = expit(np.array(self.amplitude_velocity_history)) * 2 - 1
+        amplitude_velocity_history = colors.Normalize()(self.amplitude_velocity_history)
+        state_colors = np.tile(np.array(amplitude_velocity_history)[:, :, newaxis], 3)
+        plt.imshow(state_colors, interpolation="None")
+        plt.savefig("amplitude_velocities.png", format='png')
+        
     def plot_state(self):
-        state_colors = np.tile(np.array(self.phase_state_history)[:,:,newaxis], 3)
+        phase_state_history = np.array(self.phase_state_history)
+        amplitude_state_history = np.array(self.amplitude_state_history)
 
-        max = state_colors.max()
-        min = state_colors.min()
-        if abs(max - min) > 0.00001:
-            state_colors = expit(state_colors / (max - min))
-        # if abs(max) > 0:
-        #     state_colors -= min
-        #     state_colors /= max - min
-
+        state_colors = np.stack((
+            phase_state_history,
+            np.ones_like(amplitude_state_history),
+            colors.Normalize()(amplitude_state_history)),
+            axis=-1
+        )
+        state_colors = colors.hsv_to_rgb(state_colors)
         plt.imshow(state_colors, interpolation="None")
-        plt.savefig("phases.png", format='png')
+        plt.savefig("state.png", format='png')
 
-        state_colors = np.tile(np.array(self.phase_velocity_history)[:, :, newaxis], 3)
-        max = state_colors.max()
-        min = state_colors.min()
-        if max - min > 0.00001:
-            state_colors = expit(state_colors / (max - min))
-
-        # if abs(max) > 0:
-        #     state_colors += min
-        #     state_colors /= max - min
-
-        plt.imshow(state_colors, interpolation="None")
-        plt.savefig("velocities.png", format='png')
+    def plot(self):
+        display.plot_phase_velocities()
+        display.plot_phases()
+        display.plot_amplitudes()
+        display.plot_amplitude_velocities()
+        # display.plot_state()
 
 if __name__ == "__main__":
     display = Display()
@@ -72,7 +85,9 @@ if __name__ == "__main__":
         if iteration % steps_per_frame == 0:
             display.phase_state_history.append(np.copy(display.automaton.phases))
             display.phase_velocity_history.append(np.copy(display.automaton.phase_velocities))
-    # display.plot_state()
-    display.plot_phase_velocities()
-    display.plot_phases()
+            display.amplitude_state_history.append(np.copy(display.automaton.amplitudes))
+            display.amplitude_velocity_history.append(np.copy(display.automaton.amplitude_velocities))
+
+    display.plot()
+
     print("dummyline")

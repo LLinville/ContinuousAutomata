@@ -2,6 +2,8 @@
 '''
 Add velocity, add force restoring to zero
 Phase/amplitude specific actions
+
+Standing circular waves encouraged by averaging phase*amplitude and making it zero
 '''
 
 import numpy as np
@@ -25,12 +27,13 @@ class WaveAutomaton:
         self.amplitude_velocities = np.zeros(self.state_width)
         # self.phases = np.arange(0, 1, 1 / self.state_width)
         self.phases[10:12] = 0.1
-        self.amplitudes = np.zeros(self.state_width)
-        self.phase_velocities[2 * self.state_width // 5 : 3 * self.state_width // 5] = 0.01
+        self.amplitudes[0 * self.state_width // 5 : 4 * self.state_width // 5] = 0.1
+        self.phase_velocities[1 * self.state_width // 5 : 3 * self.state_width // 5] = 0.1
 
     def step(self, timestep=0.1):
-        self.phase_velocities = blur(self.phase_velocities, 0.01)
-        # self.velocities -= self.phases * timestep
+        self.phase_velocities = blur(self.phase_velocities, 0.001)
+        self.amplitudes += self.amplitude_velocities * timestep
+        self.amplitude_velocities -= self.amplitudes * timestep
         self.phases += self.phase_velocities * timestep
         # self.phases = (np.roll(self.phases, 1) + self.phases + np.roll(self.phases, -1)) / 3
         # self.velocities = blur(self.velocities)
