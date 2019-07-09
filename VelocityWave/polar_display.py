@@ -89,5 +89,6 @@ if __name__ == "__main__":
             display.amplitude_velocity_history.append(np.copy(display.automaton.amplitude_velocities))
 
     display.plot()
+    plt.show()
 
     print("dummyline")
