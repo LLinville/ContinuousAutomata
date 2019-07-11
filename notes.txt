@@ -1,0 +1,3 @@
+pulled towards either 1 or zero. tanh or sigmoid. Keep phase
+
+            frequency transform of waves in locale

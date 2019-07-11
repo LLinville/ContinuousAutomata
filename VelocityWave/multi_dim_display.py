@@ -20,9 +20,9 @@ class Display:
     def plot_states(self):
         state_history = self.state_history
         state_colors = np.stack((
-            (np.angle(state_history) + np.pi) / (2*np.pi),
-            np.ones_like(state_history).real,
-            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history), 0, 1)))),
+            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[0]), 0, 1))),
+            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[1]), 0, 1))),
+            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[2]), 0, 1)))),
             axis=-1
         )
         state_colors = colors.hsv_to_rgb(state_colors)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     display = Display()
 
     steps_per_frame = 100
-    for iteration in range(500 * steps_per_frame):
+    for iteration in range(5000 * steps_per_frame):
         if iteration % 100 == 0:
             print(iteration)
 
@@ -85,7 +85,6 @@ if __name__ == "__main__":
         if iteration % steps_per_frame == 0:
             display.state_history.append(np.copy(display.automaton.state))
             display.velocity_history.append(np.copy(display.automaton.velocity))
-    # display.plot_state()
-    display.plot_velocities()
+    # display.plot_velocities()
     display.plot_states()
     print("dummyline")
