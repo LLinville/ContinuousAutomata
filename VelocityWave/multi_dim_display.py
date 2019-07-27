@@ -13,19 +13,20 @@ from attractor_automaton import Automaton
 
 class Display:
     def __init__(self):
-        self.automaton = Automaton(state_width=100)
+        self.automaton = Automaton(state_width=1500)
         self.state_history = [self.automaton.state]
         self.velocity_history = [self.automaton.velocity]
 
     def plot_states(self):
-        state_history = self.state_history
+        state_history = np.array(self.state_history)
+        state_history = state_history.transpose([1,0,2])
         state_colors = np.stack((
-            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[0]), 0, 1))),
-            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[1]), 0, 1))),
-            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[2]), 0, 1)))),
+            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[0]), -10000, 10000))),
+            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[1]), -10000, 10000))),
+            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[2]), -10000, 10000)))),
             axis=-1
         )
-        state_colors = colors.hsv_to_rgb(state_colors)
+        # state_colors = colors.hsv_to_rgb(state_colors)
         img = Image.fromarray(np.asarray(np.rint(state_colors*255), dtype=np.uint8), 'RGB')
         img.save('states.png')
         # plt.imshow(state_colors, interpolation="None")
@@ -33,15 +34,22 @@ class Display:
 
     def plot_velocities(self):
         # phase_velocity_history = expit(np.array(self.phase_velocity_history)) * 2 - 1
-        velocity_history = self.velocity_history
-        state_colors = np.stack((
-            (np.angle(velocity_history) + np.pi) / (2 * np.pi),
-            np.ones_like(velocity_history).real,
-            colors.Normalize()(np.sqrt(np.clip(np.abs(velocity_history), 0, 1000)))),
+        velocity_history = np.array(self.velocity_history)
+        velocity_history = velocity_history.transpose([1, 0, 2])
+        # state_colors = np.stack((
+        #     (np.angle(velocity_history) + np.pi) / (2 * np.pi),
+        #     np.ones_like(velocity_history).real,
+        #     colors.Normalize()(np.sqrt(np.clip(np.abs(velocity_history), 0, 1000)))),
+        #     axis=-1
+        # )
+        velocity_colors = np.stack((
+            colors.Normalize()(np.sqrt(np.clip(np.abs(velocity_history[0]), -10000, 10000))),
+            colors.Normalize()(np.sqrt(np.clip(np.abs(velocity_history[1]), -10000, 10000))),
+            colors.Normalize()(np.sqrt(np.clip(np.abs(velocity_history[2]), -10000, 10000)))),
             axis=-1
         )
-        state_colors = colors.hsv_to_rgb(state_colors)
-        img = Image.fromarray(np.asarray(np.rint(state_colors * 255), dtype=np.uint8), 'RGB')
+        # velocity_colors= colors.hsv_to_rgb(velocity_colors)
+        img = Image.fromarray(np.asarray(np.rint(velocity_colors * 255), dtype=np.uint8), 'RGB')
         img.save('phase_velocities.png')
         # plt.imshow(state_colors, interpolation="None")
         # plt.savefig("phase_velocities.png", format='png')
@@ -76,15 +84,21 @@ class Display:
 if __name__ == "__main__":
     display = Display()
 
-    steps_per_frame = 100
-    for iteration in range(5000 * steps_per_frame):
+    total_frames = 1500
+    steps_per_frame = 10
+    for iteration in range(total_frames * steps_per_frame):
+        display.automaton.step(timestep=0.005)
         if iteration % 100 == 0:
             print(iteration)
-
-        display.automaton.step(timestep=0.001)
+            print(
+                np.average(np.linalg.norm(display.automaton.state, axis=0)),
+                np.average(np.linalg.norm(display.automaton.velocity, axis=0)),
+                np.average(np.linalg.norm(display.automaton.pull, axis=0))
+            )
         if iteration % steps_per_frame == 0:
+
             display.state_history.append(np.copy(display.automaton.state))
             display.velocity_history.append(np.copy(display.automaton.velocity))
-    # display.plot_velocities()
+    display.plot_velocities()
     display.plot_states()
     print("dummyline")
