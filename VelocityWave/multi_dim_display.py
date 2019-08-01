@@ -13,17 +13,23 @@ from attractor_automaton import Automaton
 
 class Display:
     def __init__(self):
-        self.automaton = Automaton(state_width=1500)
+        self.automaton = Automaton(state_width=300)
         self.state_history = [self.automaton.state]
         self.velocity_history = [self.automaton.velocity]
 
     def plot_states(self):
         state_history = np.array(self.state_history)
         state_history = state_history.transpose([1,0,2])
+        # state_colors = np.stack((
+        #     colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[0]), -10000, 10000))),
+        #     colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[1]), -10000, 10000))),
+        #     colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[2]), -10000, 10000)))),
+        #     axis=-1
+        # )
         state_colors = np.stack((
-            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[0]), -10000, 10000))),
-            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[1]), -10000, 10000))),
-            colors.Normalize()(np.sqrt(np.clip(np.abs(state_history[2]), -10000, 10000)))),
+            colors.Normalize()(np.clip(state_history[0], -10000, 10000)),
+            colors.Normalize()(np.clip(state_history[1], -10000, 10000)),
+            colors.Normalize()(np.clip(state_history[2], -10000, 10000))),
             axis=-1
         )
         # state_colors = colors.hsv_to_rgb(state_colors)
@@ -84,8 +90,8 @@ class Display:
 if __name__ == "__main__":
     display = Display()
 
-    total_frames = 1500
-    steps_per_frame = 10
+    total_frames = 300
+    steps_per_frame = 50
     for iteration in range(total_frames * steps_per_frame):
         display.automaton.step(timestep=0.005)
         if iteration % 100 == 0:
@@ -93,6 +99,7 @@ if __name__ == "__main__":
             print(
                 np.average(np.linalg.norm(display.automaton.state, axis=0)),
                 np.average(np.linalg.norm(display.automaton.velocity, axis=0)),
+                np.average(np.linalg.norm(np.roll(display.automaton.state, 1) - display.automaton.state, axis=0)),
                 np.average(np.linalg.norm(display.automaton.pull, axis=0))
             )
         if iteration % steps_per_frame == 0:
